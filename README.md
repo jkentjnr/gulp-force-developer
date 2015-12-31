@@ -173,8 +173,10 @@ The api version to be used by the library.  Used when creating on-demand meta-xm
 All contributions welcome!
 
 ## Acknowledgements 
-* [Shinichi Tomita](https://twitter.com/kevohara) for his exceptional jsforce work.
+* [Shinichi Tomita](https://github.com/stomita) for his exceptional jsforce work.
 
 ## Release History
+* 0.1.3
+  * Documentation updates.
 * 0.1.0
   * Inital release.
