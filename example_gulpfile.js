@@ -9,7 +9,7 @@ var gulp = require('gulp'),
 	gutil = require('gulp-util'),
 	forceDeploy = require('gulp-jsforce-deploy');
 
-require('./gulp-force-developer').registerForGulp(gulp, gutil);
+require('gulp-force-developer').registerForGulp(gulp, gutil);
 
 // ----------------------------------------------------------------
 // REGISTER GULP TASKS

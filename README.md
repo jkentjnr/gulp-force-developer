@@ -69,6 +69,24 @@ Using `gulp-force-developer`, a developer can adopt a fully dynamic file structu
 
 TODO: Add support for options from the gulpfile.
 
+To change any configuration, you must alter your project's package.json file.
+
+```js
+{
+  "name": "salesforce project",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "forceDeveloperConfig": {
+    "projectBaseDirectory": "src"
+  }
+}
+```
+
 In your project's gulpfile, register the tasks with gulp and extend as appropriate.  
 
 ```js
@@ -83,7 +101,7 @@ var gulp = require('gulp'),
   gutil = require('gulp-util'),
   forceDeploy = require('gulp-jsforce-deploy');
 
-require('./gulp-force-developer').registerForGulp(gulp, gutil);
+require('gulp-force-developer').registerForGulp(gulp, gutil);
 
 // ----------------------------------------------------------------
 // REGISTER GULP TASKS

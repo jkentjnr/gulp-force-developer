@@ -1,7 +1,7 @@
 {
   "name": "gulp-force-developer",
   "description": "A gulp library for salesforce and force.com development",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "main": "index.js",
   "homepage": "https://github.com/jkentjnr/gulp-force-developer",
   "author": {
@@ -27,18 +27,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "devDependencies": {
-    "bluebird": "^2.9.34",
-    "glob": "^5.0.14",
-    "grunt": "0.4.5",
-    "grunt-cli": "0.1.13",
-    "nforce": "^1.2.0",
-    "nforce-metadata": "^1.0.4"
-  },
-  "peerDependencies": {
-    "gulp": "gulpjs/gulp#4.0",
-    "gulp-util": "^3.0.7",
-  },
   "keywords": [
     "gulpplugin",
     "salesforce",
@@ -52,7 +40,6 @@
     "crypto": "0.0.3",
     "fs-extra": "^0.26.3",
     "glob-all": "^3.0.1",
-    "gulp-jsforce-deploy": "^1.1.1",
     "path": "^0.12.7"
   }
 }
