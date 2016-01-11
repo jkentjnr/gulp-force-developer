@@ -77,7 +77,7 @@ var force = {
     fs.copySync(fileDiffStage, fileDiffLive);
   },
 
-  evaluateProjectFiles: function(options) {
+  evaluateProjectFiles: function(options, packageAll) {
 
     // TODO: Add support for delete (?)
 
@@ -104,27 +104,38 @@ var force = {
       glob.sync([dir + '*.*', '!' + dir, '!' + dir + 'force.config', '!' + dir + '*-meta.xml']).forEach(function(f) {
       //grunt.file.expand({ filter: 'isFile' }, [dir + '/*', '!' + dir + '/force.config', '!' + dir + '/*-meta.xml']).forEach(function(f) {
 
-        // Read the file into memory
-        var data = fs.readFileSync(f, 'utf8') //grunt.file.read(f);
-
-        // Get any previous hash for the file.
-        var existingHash = fileDiff[f];
-
-        // Generate a hash for the data in the current file.
-        var currentHash = crypto
-          .createHash('md5')
-          .update(data)
-          .digest('hex');
-
+        var bIncludeFile = (packageAll === true);
+        
         // Check to see if there is any difference in the file.
-        if (existingHash != currentHash) {
-          // If yes -- put an 'add' action for the file in the action collection.
-          console.log('Change: ' + f);
-          metadataAction[f] = { add: true };
+        if (packageAll !== true) {
+
+          // Read the file into memory
+          var data = fs.readFileSync(f, 'utf8') //grunt.file.read(f);
+
+          // Get any previous hash for the file.
+          var existingHash = fileDiff[f];
+
+          // Generate a hash for the data in the current file.
+          var currentHash = crypto
+            .createHash('md5')
+            .update(data)
+            .digest('hex');
+
+          // Save the latest hash for the file.
+          fileDiff[f] = currentHash;
+
+          if (existingHash != currentHash) {
+            // If yes -- put an 'add' action for the file in the action collection.
+            bIncludeFile = true;
+          }
+
         }
 
-        // Save the latest hash for the file.
-        fileDiff[f] = currentHash;
+        // Add the file to the package.
+        if (bIncludeFile === true) {
+          console.log((packageAll === true ? 'Include' : 'Change') + ': ' + f);
+          metadataAction[f] = { add: true };
+        }
 
       });
 
@@ -351,11 +362,11 @@ var force = {
 
 	// -------------------------------------------
 
-	// Generate a zip package with changed files.
-    gulp.task('force-package', function(done) {
+    // Generate a zip package with all or changed files.
+    packageFiles = function(done, packageAll) {
 
       // Detect any new file or modified files.
-      var metadataAction = force.evaluateProjectFiles(opt);
+      var metadataAction = force.evaluateProjectFiles(opt, packageAll);
 
       // Clear the meta data output directory.
       force.deletePackageOutput(opt, false);
@@ -375,12 +386,15 @@ var force = {
         return;
       }
 
-      // Generate package folder structure with new & modified files.
+      // Generate package folder structure.
       force.generatePackageStructure(opt, metadataAction);
 
       done();
 
-    });
+    };
+
+    gulp.task('force-package', function(done) { packageFiles(done, false); });
+    gulp.task('force-package-all', function(done) { packageFiles(done, true); });
 
 	// -------------------------------------------
 
