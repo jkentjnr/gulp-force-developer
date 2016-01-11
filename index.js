@@ -363,7 +363,7 @@ var force = {
 	// -------------------------------------------
 
     // Generate a zip package with all or changed files.
-    packageFiles = function(done, packageAll) {
+    var packageFiles = function(done, packageAll) {
 
       // Detect any new file or modified files.
       var metadataAction = force.evaluateProjectFiles(opt, packageAll);
