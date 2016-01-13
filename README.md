@@ -65,6 +65,35 @@ Using `gulp-force-developer`, a developer can adopt a fully dynamic file structu
     -- Payment__c.object
 ```
 
+### Gulp Tasks
+
+To register the gulp tasks, you must use:
+
+```js
+require('gulp-force-developer').registerForGulp(gulp, gutil);
+```
+
+#### force-package-config
+Loads the options from the package.json
+
+#### force-reset
+Deletes the file used to track changes between `force-commit` calls
+
+#### force-package
+Packages files that have changed since the previous `force-commit` call
+
+#### force-package-all
+Packages files all files
+
+#### force-zip
+Generates the output from the `force-package` and `force-package-all` calls as a zip, ready for deployment
+
+#### force-commit
+Updates the track changes file to refect the current state
+
+#### force-mock-resources
+Mocks resources from the package.json file.  This is required when completing checkOnly tests that have Visualforce pages bound to resources. 
+
 ### Usage
 
 TODO: Add support for options from the gulpfile.
@@ -169,13 +198,18 @@ Default value: `34`
 
 The api version to be used by the library.  Used when creating on-demand meta-xml files.
 
+#### options.mockResources
+Type: `Array (String)`
+Default value: `[]`
+
+A list of resource names required to be mocked so a test deployment can be completed successfully.
+
 ## Contributing
 All contributions welcome!
 
-## Acknowledgements 
-* [Shinichi Tomita](https://github.com/stomita) for his exceptional jsforce work.
-
 ## Release History
+* 0.1.6
+  * Added resource mocking support
 * 0.1.3
   * Documentation updates.
 * 0.1.0
