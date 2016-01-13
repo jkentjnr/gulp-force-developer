@@ -342,8 +342,9 @@ var force = {
     // -------------------------------------------
 
     // Mock resources for test deployments
-    gulp.task('force-mock-resources', function() {
+    gulp.task('force-mock-resources', function(done) {
       force.mockResources(opt);
+      done();
     });
 
   }
@@ -379,7 +380,7 @@ function buildMetadataContent(options, ext, isText) {
       break;
     case '.resource':
       data = (isText)
-        ? '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<StaticResource xmlns=\"http:\/\/soap.sforce.com\/2006\/04\/metadata\">\r\n    <cacheControl>Public<\/cacheControl>\r\n    <contentType>text/plain<\/contentType>\r\n<\/StaticResource>';
+        ? '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<StaticResource xmlns=\"http:\/\/soap.sforce.com\/2006\/04\/metadata\">\r\n    <cacheControl>Public<\/cacheControl>\r\n    <contentType>text/plain<\/contentType>\r\n<\/StaticResource>'
         : '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<StaticResource xmlns=\"http:\/\/soap.sforce.com\/2006\/04\/metadata\">\r\n    <cacheControl>Public<\/cacheControl>\r\n    <contentType>application/zip<\/contentType>\r\n<\/StaticResource>';
       break;
   }

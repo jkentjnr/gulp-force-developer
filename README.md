@@ -208,7 +208,7 @@ A list of resource names required to be mocked so a test deployment can be compl
 All contributions welcome!
 
 ## Release History
-* 0.1.6
+* 0.1.7
   * Added resource mocking support
 * 0.1.3
   * Documentation updates.
