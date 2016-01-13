@@ -358,14 +358,17 @@ function buildMetadata(f, metadataTarget, options, isText) {
   var ext = path.extname(f);
   var name = path.basename(f, ext);
 
-  var data = buildMetadataContent(options, ext, isText);
+  var data = buildMetadataContent(options, f, isText);
 
   fs.ensureFileSync(metadataTarget);
   fs.writeFileSync(metadataTarget, data, 'utf8');
 
 }
 
-function buildMetadataContent(options, ext, isText) {
+function buildMetadataContent(options, f, isText) {
+
+  var ext = path.extname(f);
+  var name = path.basename(f, ext);
 
   var data = null;
   switch (ext) {
