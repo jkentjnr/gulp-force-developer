@@ -2,6 +2,8 @@
 
 > A gulp library for salesforce and force.com development.  Designed to help force.com developers to work using the benefits of gulp and a folder structure when developing. 
 
+See: (https://github.com/jkentjnr/sfdc-gulp-travisci-boilerplate) for a boilplate solution.
+
 ```shell
 npm install gulp-force-developer --save-dev
 ```
@@ -208,7 +210,7 @@ A list of resource names required to be mocked so a test deployment can be compl
 All contributions welcome!
 
 ## Release History
-* 0.1.7
+* 0.1.10
   * Added resource mocking support
 * 0.1.3
   * Documentation updates.

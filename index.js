@@ -231,7 +231,10 @@ var force = {
       // TODO: Check for custom packager for a file ext.
 
       var packagePath = getPackagePath(ext);
-      copier(options, f, packagePath.folderName, packagePath.hasMetadata);
+      if (packagePath !== null)
+        copier(options, f, packagePath.folderName, packagePath.hasMetadata);
+      else
+        console.log('Skipping file - ' + f);
 
     }
 
@@ -447,6 +450,7 @@ function getPackagePath(ext) {
     case '.trigger':
       return { folderName: 'triggers', hasMetadata: true };
   }
+  return null;
 }
 
 // ---------------------------------------------------------------------------------------------------
