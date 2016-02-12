@@ -231,10 +231,7 @@ var force = {
       // TODO: Check for custom packager for a file ext.
 
       var packagePath = getPackagePath(ext);
-      if (packagePath !== null)
-        copier(options, f, packagePath.folderName, packagePath.hasMetadata);
-      else
-        console.log('Skipping file - ' + f);
+      copier(options, f, packagePath.folderName, packagePath.hasMetadata);
 
     }
 
@@ -361,17 +358,14 @@ function buildMetadata(f, metadataTarget, options, isText) {
   var ext = path.extname(f);
   var name = path.basename(f, ext);
 
-  var data = buildMetadataContent(options, f, isText);
+  var data = buildMetadataContent(name, options, ext, isText);
 
   fs.ensureFileSync(metadataTarget);
   fs.writeFileSync(metadataTarget, data, 'utf8');
 
 }
 
-function buildMetadataContent(options, f, isText) {
-
-  var ext = path.extname(f);
-  var name = path.basename(f, ext);
+function buildMetadataContent(name, options, ext, isText) {
 
   var data = null;
   switch (ext) {
@@ -450,7 +444,6 @@ function getPackagePath(ext) {
     case '.trigger':
       return { folderName: 'triggers', hasMetadata: true };
   }
-  return null;
 }
 
 // ---------------------------------------------------------------------------------------------------
