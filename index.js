@@ -444,6 +444,8 @@ function getPackagePath(ext) {
       return { folderName: 'staticresources', hasMetadata: true };
     case '.tab':
       return { folderName: 'tabs', hasMetadata: false };
+    case '.translation':
+      return { folderName: 'translations', hasMetadata: false };
     case '.trigger':
       return { folderName: 'triggers', hasMetadata: true };
   }
