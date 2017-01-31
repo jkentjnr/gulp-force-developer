@@ -232,7 +232,12 @@ var force = {
       // TODO: Check for custom packager for a file ext.
 
       var packagePath = getPackagePath(ext);
-      copier(options, f, packagePath.folderName, packagePath.hasMetadata);
+      if (packagePath !== undefined) {
+        copier(options, f, packagePath.folderName, packagePath.hasMetadata);
+      }
+      else {
+        console.log('Skipping file (Missing Extension Support) - ' + f);
+      }
 
     }
 
