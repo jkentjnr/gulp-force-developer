@@ -45,8 +45,8 @@ var force = {
     if (fs.existsSync(packageFile) === true) {
       var config = JSON.parse(fs.readFileSync(packageFile, 'utf8'));
       if (config.forceDeveloperConfig !== undefined) {
-        for (var attrname in config.forceDeveloperConfig) { 
-          options[attrname] = config.forceDeveloperConfig[attrname]; 
+        for (var attrname in config.forceDeveloperConfig) {
+          options[attrname] = config.forceDeveloperConfig[attrname];
         }
       }
     }
@@ -64,8 +64,8 @@ var force = {
       if (fs.existsSync('./' + options.outputDirectory + '/package.xml'))
         fs.removeSync('./' + options.outputDirectory + '/package.xml');
 
-      if (fs.existsSync('./' + options.outputDirectory + '/src'))
-        fs.removeSync('./' + options.outputDirectory + '/src');
+      if (fs.existsSync('./' + options.outputDirectory + '/' + options.outputTempDirectory))
+        fs.removeSync('./' + options.outputDirectory + '/' + options.outputTempDirectory);
     }
   },
 
@@ -88,10 +88,10 @@ var force = {
     var fileDiffLive = './' + options.outputDirectory + '/' + options.fileChangeHashFile;
     var fileDiffStage = './' + options.outputDirectory + '/' + options.fileChangeHashStagingFile;
 
-    // Read the hash file (if possible) 
+    // Read the hash file (if possible)
     var fileDiff = (fs.existsSync(fileDiffLive))
       ? fs.readJsonSync(fileDiffLive)
-      : {}; 
+      : {};
 
     // Iterate through all folders under the project folder.
     glob.sync('./' + options.projectBaseDirectory + '/**/').forEach(function(dir) {
@@ -106,7 +106,7 @@ var force = {
       //grunt.file.expand({ filter: 'isFile' }, [dir + '/*', '!' + dir + '/force.config', '!' + dir + '/*-meta.xml']).forEach(function(f) {
 
         var bIncludeFile = (packageAll === true);
-        
+
         // Check to see if there is any difference in the file.
         if (packageAll !== true) {
 
@@ -190,7 +190,7 @@ var force = {
     // Create a path to the temp output dir.  This will house the unpackaged package.xml and source
     var targetSrc = './' + options.outputDirectory + '/' + options.outputTempDirectory + '/';
 
-    // 
+    //
     var copier = function(options, f, objectDir, hasMetadata) {
 
       var target = targetSrc + objectDir;
@@ -202,7 +202,7 @@ var force = {
       fs.copySync(f, targetFilename);
 
       if (hasMetadata) {
-        
+
         var metadataFilename = sourceFilename + '-meta.xml';
         var metadataTarget = target + '/' + metadataFilename;
 
@@ -220,12 +220,12 @@ var force = {
           console.log('Generating metadata - ' + metadataTarget);
           buildMetadata(f, metadataTarget, options);
         }
-        
+
       }
     };
 
     for(var f in metadataAction) {
-      
+
       var ext = path.extname(f);
 
       // TODO: Check for custom packager for a file ext.
@@ -235,7 +235,7 @@ var force = {
 
     }
 
-    // TODO: load generic package XML file from filesystem. 
+    // TODO: load generic package XML file from filesystem.
     var packageXml = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Package xmlns=\"http:\/\/soap.sforce.com\/2006\/04\/metadata\">\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AnalyticSnapshot<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexClass<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexComponent<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexPage<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexTrigger<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApprovalProcess<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AssignmentRules<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AuthProvider<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AutoResponseRules<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>BusinessProcess<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CallCenter<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Community<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CompactLayout<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ConnectedApp<\/name>\r\n    <\/types>\r\n     <types>\r\n        <members>*<\/members>\r\n        <name>CustomApplication<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomApplicationComponent<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomField<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomLabels<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomObject<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomObjectTranslation<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomPageWebLink<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomSite<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomTab<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Dashboard<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>DataCategoryGroup<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Document<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>EmailTemplate<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>EntitlementProcess<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>EntitlementTemplate<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ExternalDataSource<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>FieldSet<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Flow<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Group<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>HomePageComponent<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>HomePageLayout<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Layout<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Letterhead<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ListView<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>LiveChatAgentConfig<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>LiveChatButton<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>LiveChatDeployment<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>MilestoneType<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>NamedFilter<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Network<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>PermissionSet<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Portal<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>PostTemplate<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Profile<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Queue<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>QuickAction<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>RecordType<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>RemoteSiteSetting<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Report<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ReportType<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Role<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>SamlSsoConfig<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Scontrol<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>SharingReason<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Skill<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>StaticResource<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Territory<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Translations<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ValidationRule<\/name>\r\n    <\/types>\r\n    <version>' + options.apiVersion + '<\/version>\r\n<\/Package>';
     fs.writeFileSync(targetSrc + 'package.xml', packageXml, 'utf8');
 
@@ -275,7 +275,7 @@ var force = {
     // TODO: consider moving output Directory to system temp dir & use https://www.npmjs.com/package/temporary
 
     // Modify the default options with any stored in a package json file.
-    gulp.task('force-package-config', function(done) {     
+    gulp.task('force-package-config', function(done) {
       opt = force.parsePackageJsonConfiguration(opt);
         done();
     });
@@ -283,7 +283,7 @@ var force = {
     // -------------------------------------------
 
     // Clear the meta data output directory & difference cache file.
-    gulp.task('force-reset', function(done) {     
+    gulp.task('force-reset', function(done) {
         force.deletePackageOutput(opt, true);
         done();
     });
@@ -304,9 +304,9 @@ var force = {
         var msg = 'No new or modified files detected.';
 
         // Throw a gulp error to note no file changes detected.
-        if (gutil !== undefined && gutil !== null) 
+        if (gutil !== undefined && gutil !== null)
           throw new gutil.PluginError(gulpPluginName, msg, { showProperties: false, showStack: false });
-        
+
         // Return an error to gulp.
         console.log(msg);
         done(msg);
