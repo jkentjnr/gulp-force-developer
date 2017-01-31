@@ -36,6 +36,7 @@ var opt = {
 };
 
 var force = {
+  options: opt,
 
   parsePackageJsonConfiguration: function(options) {
 
