@@ -1,7 +1,7 @@
 {
   "name": "gulp-force-developer",
   "description": "A gulp library for salesforce and force.com development",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "main": "index.js",
   "homepage": "https://github.com/jkentjnr/gulp-force-developer",
   "author": {
