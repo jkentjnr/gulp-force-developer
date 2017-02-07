@@ -231,6 +231,7 @@ var force = {
       var dir = path.basename(path.dirname(f));
 
       // TODO: Check for custom packager for a file ext.
+      // TODO: Detect lightning app vs application
 
       var packagePath = getPackagePath(dir, ext);
       if (packagePath !== undefined) {
@@ -379,7 +380,11 @@ function buildMetadataContent(name, options, ext, isText) {
     case '.cls':
       data = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<ApexClass xmlns=\"http:\/\/soap.sforce.com\/2006\/04\/metadata\">\r\n    <apiVersion>' + options.apiVersion + '.0<\/apiVersion>\r\n    <status>Active<\/status>\r\n<\/ApexClass>';
       break;
+    case '.app':
     case '.cmp':
+    case '.evt':
+    case '.intf':
+    case '.tokens':
       data = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<AuraDefinitionBundle xmlns=\"http:\/\/soap.sforce.com\/2006\/04\/metadata\">\r\n    <apiVersion>' + options.apiVersion + '.0<\/apiVersion>\r\n    <description>' + name + '<\/description>\r\n<\/AuraDefinitionBundle>';
       break;
     case '.trigger':
@@ -412,6 +417,9 @@ function getPackagePath(dir, ext) {
     case '.svg':
       return { folderName: path.join('aura', dir), hasMetadata: false };
     case '.cmp':
+    case '.evt':
+    case '.intf':
+    case '.tokens':
       return { folderName: path.join('aura', dir), hasMetadata: true };
 
     case '.app':
