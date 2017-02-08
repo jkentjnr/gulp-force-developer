@@ -25,6 +25,7 @@ var opt = {
   apiVersion: 34,
   fileChangeHashFile: '.force-developer.filehash.json',
   fileChangeHashStagingFile: '.force-developer.filehash.staging.json',
+  forcePackageContinueSilent: false,
   projectBaseDirectory: 'project',
   outputDirectory: '.package',
   outputTempDirectory: 'src',
@@ -331,6 +332,12 @@ var force = {
 
       // Check to see if any file changes were detected.
       if (Object.keys(metadataAction).length == 0) {
+        // Silently return without an error when forcePackageContinueSilent is true
+        if (opt.forcePackageContinueSilent) {
+          done();
+          return;
+        }
+
         var msg = 'No new or modified files detected.';
 
         // Throw a gulp error to note no file changes detected.
