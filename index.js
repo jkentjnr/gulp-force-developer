@@ -225,6 +225,7 @@ var force = {
       }
     };
 
+    var packagePaths = {};
     for(var f in metadataAction) {
 
       var ext = path.extname(f);
@@ -235,12 +236,33 @@ var force = {
 
       var packagePath = getPackagePath(dir, ext);
       if (packagePath !== undefined) {
-        copier(options, f, packagePath.folderName, packagePath.hasMetadata);
+        packagePaths[f] = packagePath;
+        if (packagePath.isBundleItem) {
+          // include everything in the bundle
+          var bundleDir = path.dirname(f);
+          var dirListing = fs.readdirSync(bundleDir);
+          for (var bundleFile of dirListing) {
+            var bundleFilePath = `${bundleDir}/${bundleFile}`;
+            if (!packagePaths[bundleFilePath] && !fs.statSync(bundleFilePath).isDirectory()) {
+              packagePath = getPackagePath(dir, path.extname(bundleFilePath));
+              if (packagePath && packagePath.isBundleItem) {
+                console.log('Include: ' + bundleFilePath);
+                packagePaths[bundleFilePath] = packagePath;
+              } else {
+                console.log('Skipping file (Not a Bundle Item) - ' + bundleFilePath);
+              }
+            }
+          }
+        }
       }
       else {
         console.log('Skipping file (Missing Extension Support) - ' + f);
       }
 
+    }
+
+    for (var f in packagePaths) {
+      copier(options, f, packagePaths[f].folderName, packagePaths[f].hasMetadata);
     }
 
     // TODO: load generic package XML file from filesystem.
@@ -415,67 +437,72 @@ function getPackagePath(dir, ext) {
     case '.design':
     case '.js':
     case '.svg':
-      return { folderName: path.join('aura', dir), hasMetadata: false };
+      return { folderName: 'aura/' + dir, isBundleItem: true, hasMetadata: false };
     case '.cmp':
     case '.evt':
     case '.intf':
     case '.tokens':
-      return { folderName: path.join('aura', dir), hasMetadata: true };
+      return { folderName: 'aura/' + dir, isBundleItem: true, hasMetadata: true };
 
+    // TODO distinguish between aura .app vs classic .app
     case '.app':
-      return { folderName: 'applications', hasMetadata: false };
+      // classic app
+      return { folderName: 'applications', isBundleItem: false, hasMetadata: false };
+      // lightning app
+      //return { folderName: 'aura/' + dir, isBundleItem: true, hasMetadata: true };
+
     case '.approvalProcess':
-      return { folderName: 'approvalProcesses', hasMetadata: false };
+      return { folderName: 'approvalProcesses', isBundleItem: false, hasMetadata: false };
     case '.assignmentRules':
-      return { folderName: 'assignmentRules', hasMetadata: false };
+      return { folderName: 'assignmentRules', isBundleItem: false, hasMetadata: false };
     case '.authproviders':
-      return { folderName: 'authprovider', hasMetadata: false };
+      return { folderName: 'authprovider', isBundleItem: false, hasMetadata: false };
     case '.autoResponseRules':
-      return { folderName: 'autoResponseRules', hasMetadata: false };
+      return { folderName: 'autoResponseRules', isBundleItem: false, hasMetadata: false };
     case '.cls':
-      return { folderName: 'classes', hasMetadata: true };
+      return { folderName: 'classes', isBundleItem: false, hasMetadata: true };
     case '.community':
-      return { folderName: 'communities', hasMetadata: false };
+      return { folderName: 'communities', isBundleItem: false, hasMetadata: false };
     case '.component':
-      return { folderName: 'components', hasMetadata: true };
+      return { folderName: 'components', isBundleItem: false, hasMetadata: true };
     case '.group':
-      return { folderName: 'group', hasMetadata: false };
+      return { folderName: 'group', isBundleItem: false, hasMetadata: false };
     case '.homePageLayout':
-      return { folderName: 'homePageLayouts', hasMetadata: false };
+      return { folderName: 'homePageLayouts', isBundleItem: false, hasMetadata: false };
     case '.labels':
-      return { folderName: 'labels', hasMetadata: false };
+      return { folderName: 'labels', isBundleItem: false, hasMetadata: false };
     case '.layout':
-      return { folderName: 'layouts', hasMetadata: false };
+      return { folderName: 'layouts', isBundleItem: false, hasMetadata: false };
     case '.letter':
-      return { folderName: 'letterhead', hasMetadata: false };
+      return { folderName: 'letterhead', isBundleItem: false, hasMetadata: false };
     case '.object':
-      return { folderName: 'objects', hasMetadata: false };
+      return { folderName: 'objects', isBundleItem: false, hasMetadata: false };
     case '.objectTranslation':
-      return { folderName: 'objectTranslations', hasMetadata: false };
+      return { folderName: 'objectTranslations', isBundleItem: false, hasMetadata: false };
     case '.page':
-      return { folderName: 'pages', hasMetadata: true };
+      return { folderName: 'pages', isBundleItem: false, hasMetadata: true };
     case '.permissionset':
-      return { folderName: 'permissionsets', hasMetadata: false };
+      return { folderName: 'permissionsets', isBundleItem: false, hasMetadata: false };
     case '.profile':
-      return { folderName: 'profiles', hasMetadata: false };
+      return { folderName: 'profiles', isBundleItem: false, hasMetadata: false };
     case '.queue':
-      return { folderName: 'queues', hasMetadata: false };
+      return { folderName: 'queues', isBundleItem: false, hasMetadata: false };
     case '.quickAction':
-      return { folderName: 'quickActions', hasMetadata: false };
+      return { folderName: 'quickActions', isBundleItem: false, hasMetadata: false };
     case '.remoteSite':
-      return { folderName: 'remoteSiteSettings', hasMetadata: false };
+      return { folderName: 'remoteSiteSettings', isBundleItem: false, hasMetadata: false };
     case '.reportType':
-      return { folderName: 'reportTypes', hasMetadata: false };
+      return { folderName: 'reportTypes', isBundleItem: false, hasMetadata: false };
     case '.role':
-      return { folderName: 'role', hasMetadata: false };
+      return { folderName: 'role', isBundleItem: false, hasMetadata: false };
     case '.resource':
-      return { folderName: 'staticresources', hasMetadata: true };
+      return { folderName: 'staticresources', isBundleItem: false, hasMetadata: true };
     case '.tab':
-      return { folderName: 'tabs', hasMetadata: false };
+      return { folderName: 'tabs', isBundleItem: false, hasMetadata: false };
     case '.translation':
-      return { folderName: 'translations', hasMetadata: false };
+      return { folderName: 'translations', isBundleItem: false, hasMetadata: false };
     case '.trigger':
-      return { folderName: 'triggers', hasMetadata: true };
+      return { folderName: 'triggers', isBundleItem: false, hasMetadata: true };
   }
 }
 
