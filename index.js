@@ -233,19 +233,18 @@ var force = {
       var dir = path.basename(path.dirname(f));
 
       // TODO: Check for custom packager for a file ext.
-      // TODO: Detect lightning app vs application
 
-      var packagePath = getPackagePath(dir, ext);
+      var packagePath = getPackagePath(dir, ext, f);
       if (packagePath !== undefined) {
         packagePaths[f] = packagePath;
+        // include everything in the bundle
         if (packagePath.isBundleItem) {
-          // include everything in the bundle
           var bundleDir = path.dirname(f);
           var dirListing = fs.readdirSync(bundleDir);
           for (var bundleFile of dirListing) {
             var bundleFilePath = `${bundleDir}/${bundleFile}`;
             if (!packagePaths[bundleFilePath] && !fs.statSync(bundleFilePath).isDirectory()) {
-              packagePath = getPackagePath(dir, path.extname(bundleFilePath));
+              packagePath = getPackagePath(dir, path.extname(bundleFilePath), bundleFilePath);
               if (packagePath && packagePath.isBundleItem) {
                 console.log('Include: ' + bundleFilePath);
                 packagePaths[bundleFilePath] = packagePath;
@@ -436,9 +435,9 @@ function buildMetadataContent(name, options, ext, isText) {
 
 }
 
-function getPackagePath(dir, ext) {
+function getPackagePath(dir, ext, filePath) {
   switch (ext) {
-    // lightning bundles first
+    // Lightning bundles first
     case '.auradoc':
     case '.css':
     case '.design':
@@ -451,12 +450,15 @@ function getPackagePath(dir, ext) {
     case '.tokens':
       return { folderName: 'aura/' + dir, isBundleItem: true, hasMetadata: true };
 
-    // TODO distinguish between aura .app vs classic .app
+    // Distinguish between aura .app vs classic .app
     case '.app':
-      // classic app
-      return { folderName: 'applications', isBundleItem: false, hasMetadata: false };
-      // lightning app
-      //return { folderName: 'aura/' + dir, isBundleItem: true, hasMetadata: true };
+      var fileContents = fs.readFileSync(filePath, 'utf8');
+      // Lightning app
+      if (-1 !== fileContents.indexOf('<aura:application'))
+        return { folderName: 'aura/' + dir, isBundleItem: true, hasMetadata: true };
+      // Classic app
+      if (-1 !== fileContents.indexOf('<CustomApplication'))
+        return { folderName: 'applications', isBundleItem: false, hasMetadata: false };
 
     case '.approvalProcess':
       return { folderName: 'approvalProcesses', isBundleItem: false, hasMetadata: false };
