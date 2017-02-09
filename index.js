@@ -226,6 +226,22 @@ var force = {
       }
     };
 
+    var includeBundleSibblings = function(bundleDir, packagePaths) {
+      var dirListing = fs.readdirSync(bundleDir);
+      for (var bundleFile of dirListing) {
+        var bundleFilePath = bundleDir + '/' + bundleFile;
+        if (!packagePaths[bundleFilePath] && !fs.statSync(bundleFilePath).isDirectory()) {
+          var packagePath = getPackagePath(dir, path.extname(bundleFilePath), bundleFilePath);
+          if (packagePath && packagePath.isBundleItem) {
+            console.log('Include: ' + bundleFilePath);
+            packagePaths[bundleFilePath] = packagePath;
+          } else {
+            console.log('Skipping file (Not a Bundle Item) - ' + bundleFilePath);
+          }
+        }
+      }
+    };
+
     var packagePaths = {};
     for(var f in metadataAction) {
 
@@ -237,22 +253,9 @@ var force = {
       var packagePath = getPackagePath(dir, ext, f);
       if (packagePath !== undefined) {
         packagePaths[f] = packagePath;
-        // include everything in the bundle
         if (packagePath.isBundleItem) {
-          var bundleDir = path.dirname(f);
-          var dirListing = fs.readdirSync(bundleDir);
-          for (var bundleFile of dirListing) {
-            var bundleFilePath = `${bundleDir}/${bundleFile}`;
-            if (!packagePaths[bundleFilePath] && !fs.statSync(bundleFilePath).isDirectory()) {
-              packagePath = getPackagePath(dir, path.extname(bundleFilePath), bundleFilePath);
-              if (packagePath && packagePath.isBundleItem) {
-                console.log('Include: ' + bundleFilePath);
-                packagePaths[bundleFilePath] = packagePath;
-              } else {
-                console.log('Skipping file (Not a Bundle Item) - ' + bundleFilePath);
-              }
-            }
-          }
+          // include everything in the bundle
+          includeBundleSibblings(path.dirname(f), packagePaths);
         }
       }
       else {
