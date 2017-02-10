@@ -386,6 +386,7 @@ var force = {
       done();
     });
 
+    return module.exports;
   }
 
 };
