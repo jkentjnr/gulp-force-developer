@@ -12,9 +12,8 @@ Once the plugin has been installed, it may be enabled inside your Gulpfile with 
 
 ```js
 var gulp = require('gulp'),
-  gutil = require('gulp-util');
-
-require('./gulp-force-developer').registerForGulp(gulp, gutil);
+    gutil = require('gulp-util');
+    forceDeveloper = require('./gulp-force-developer').registerForGulp(gulp, gutil);
 ```
 
 ### Overview
@@ -85,7 +84,7 @@ Deletes the file used to track changes between `force-commit` calls
 Packages files that have changed since the previous `force-commit` call
 
 #### force-package-all
-Packages files all files
+Packages all files
 
 #### force-zip
 Generates the output from the `force-package` and `force-package-all` calls as a zip, ready for deployment
@@ -98,9 +97,7 @@ Mocks resources from the package.json file.  This is required when completing ch
 
 ### Usage
 
-TODO: Add support for options from the gulpfile.
-
-To change any configuration, you must alter your project's package.json file.
+To change your configuration, you may alter your project's package.json file.
 
 ```js
 {
@@ -118,6 +115,16 @@ To change any configuration, you must alter your project's package.json file.
 }
 ```
 
+Or you may modify the options from within your gulpfile.
+
+```js
+var gulp = require('gulp'),
+    gutil = require('gulp-util'),
+    forceDeveloper = require('gulp-force-developer').registerForGulp(gulp, gutil);
+
+forceDeveloper.options.projectBaseDirectory = 'src';
+```
+
 In your project's gulpfile, register the tasks with gulp and extend as appropriate.  
 
 ```js
@@ -129,10 +136,9 @@ var salesforcePackageFile = './.package/package.zip',
 // ----------------------------------------------------------------
 
 var gulp = require('gulp'),
-  gutil = require('gulp-util'),
-  forceDeploy = require('gulp-jsforce-deploy');
-
-require('gulp-force-developer').registerForGulp(gulp, gutil);
+    gutil = require('gulp-util'),
+    forceDeploy = require('gulp-jsforce-deploy');
+    forceDeveloper = require('gulp-force-developer').registerForGulp(gulp, gutil);
 
 // ----------------------------------------------------------------
 // REGISTER GULP TASKS
@@ -162,13 +168,17 @@ gulp.task('default', gulp.series(
 
 ### Options
 
-To override any defaults, you need to modify your project's package.json.
-
 #### options.fileChangeHashFile
 Type: `String`
 Default value: `'.force-developer.filehash.json'`
 
 Persists the file hashes to determine modified and new files.
+
+#### options.forcePackageContinueSilent
+Type: `Boolean`
+Default value: `false`
+
+By default `force-package` ends the gulp sequence with an error when no new or modified code is available for deployment. When `forcePackageContinueSilent` is `true` it causes `force-package` to continue with the subsequent gulp tasks. This behavior modification can be useful in complex deployment scenarios where multiple projects are merged together into one deployment.
 
 #### options.metadataSourceDirectory
 Type: `String`
@@ -210,6 +220,10 @@ A list of resource names required to be mocked so a test deployment can be compl
 All contributions welcome!
 
 ## Release History
+* 0.1.16
+  * Added Lightning / Aura definition bundle support
+* 0.1.15
+  * Added support for modifying options from gulpfile
 * 0.1.10
   * Added resource mocking support
 * 0.1.3

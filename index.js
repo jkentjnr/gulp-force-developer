@@ -25,6 +25,7 @@ var opt = {
   apiVersion: 34,
   fileChangeHashFile: '.force-developer.filehash.json',
   fileChangeHashStagingFile: '.force-developer.filehash.staging.json',
+  forcePackageContinueSilent: false,
   projectBaseDirectory: 'project',
   outputDirectory: '.package',
   outputTempDirectory: 'src',
@@ -225,15 +226,37 @@ var force = {
       }
     };
 
+    var includeBundleSibblings = function(bundleDir, packagePaths) {
+      var dirListing = fs.readdirSync(bundleDir);
+      for (var bundleFile of dirListing) {
+        var bundleFilePath = bundleDir + '/' + bundleFile;
+        if (!packagePaths[bundleFilePath] && !fs.statSync(bundleFilePath).isDirectory()) {
+          var packagePath = getPackagePath(dir, path.extname(bundleFilePath), bundleFilePath);
+          if (packagePath && packagePath.isBundleItem) {
+            console.log('Include: ' + bundleFilePath);
+            packagePaths[bundleFilePath] = packagePath;
+          } else {
+            console.log('Skipping file (Not a Bundle Item) - ' + bundleFilePath);
+          }
+        }
+      }
+    };
+
+    var packagePaths = {};
     for(var f in metadataAction) {
 
       var ext = path.extname(f);
+      var dir = path.basename(path.dirname(f));
 
       // TODO: Check for custom packager for a file ext.
 
-      var packagePath = getPackagePath(ext);
+      var packagePath = getPackagePath(dir, ext, f);
       if (packagePath !== undefined) {
-        copier(options, f, packagePath.folderName, packagePath.hasMetadata);
+        packagePaths[f] = packagePath;
+        if (packagePath.isBundleItem) {
+          // include everything in the bundle
+          includeBundleSibblings(path.dirname(f), packagePaths);
+        }
       }
       else {
         console.log('Skipping file (Missing Extension Support) - ' + f);
@@ -241,8 +264,12 @@ var force = {
 
     }
 
+    for (var f in packagePaths) {
+      copier(options, f, packagePaths[f].folderName, packagePaths[f].hasMetadata);
+    }
+
     // TODO: load generic package XML file from filesystem.
-    var packageXml = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Package xmlns=\"http:\/\/soap.sforce.com\/2006\/04\/metadata\">\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AnalyticSnapshot<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexClass<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexComponent<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexPage<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexTrigger<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApprovalProcess<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AssignmentRules<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AuthProvider<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AutoResponseRules<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>BusinessProcess<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CallCenter<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Community<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CompactLayout<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ConnectedApp<\/name>\r\n    <\/types>\r\n     <types>\r\n        <members>*<\/members>\r\n        <name>CustomApplication<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomApplicationComponent<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomField<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomLabels<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomObject<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomObjectTranslation<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomPageWebLink<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomSite<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomTab<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Dashboard<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>DataCategoryGroup<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Document<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>EmailTemplate<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>EntitlementProcess<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>EntitlementTemplate<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ExternalDataSource<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>FieldSet<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Flow<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Group<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>HomePageComponent<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>HomePageLayout<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Layout<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Letterhead<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ListView<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>LiveChatAgentConfig<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>LiveChatButton<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>LiveChatDeployment<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>MilestoneType<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>NamedFilter<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Network<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>PermissionSet<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Portal<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>PostTemplate<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Profile<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Queue<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>QuickAction<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>RecordType<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>RemoteSiteSetting<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Report<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ReportType<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Role<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>SamlSsoConfig<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Scontrol<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>SharingReason<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Skill<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>StaticResource<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Territory<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Translations<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ValidationRule<\/name>\r\n    <\/types>\r\n    <version>' + options.apiVersion + '<\/version>\r\n<\/Package>';
+    var packageXml = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<Package xmlns=\"http:\/\/soap.sforce.com\/2006\/04\/metadata\">\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AnalyticSnapshot<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexClass<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexComponent<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexPage<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApexTrigger<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ApprovalProcess<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AssignmentRules<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AuraDefinitionBundle<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AuthProvider<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>AutoResponseRules<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>BusinessProcess<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CallCenter<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Community<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CompactLayout<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ConnectedApp<\/name>\r\n    <\/types>\r\n     <types>\r\n        <members>*<\/members>\r\n        <name>CustomApplication<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomApplicationComponent<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomField<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomLabels<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomObject<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomObjectTranslation<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomPageWebLink<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomSite<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>CustomTab<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Dashboard<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>DataCategoryGroup<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Document<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>EmailTemplate<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>EntitlementProcess<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>EntitlementTemplate<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ExternalDataSource<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>FieldSet<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Flow<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Group<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>HomePageComponent<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>HomePageLayout<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Layout<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Letterhead<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ListView<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>LiveChatAgentConfig<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>LiveChatButton<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>LiveChatDeployment<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>MilestoneType<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>NamedFilter<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Network<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>PermissionSet<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Portal<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>PostTemplate<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Profile<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Queue<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>QuickAction<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>RecordType<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>RemoteSiteSetting<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Report<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ReportType<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Role<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>SamlSsoConfig<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Scontrol<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>SharingReason<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Skill<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>StaticResource<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Territory<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>Translations<\/name>\r\n    <\/types>\r\n    <types>\r\n        <members>*<\/members>\r\n        <name>ValidationRule<\/name>\r\n    <\/types>\r\n    <version>' + options.apiVersion + '<\/version>\r\n<\/Package>';
     fs.writeFileSync(targetSrc + 'package.xml', packageXml, 'utf8');
 
   },
@@ -307,6 +334,12 @@ var force = {
 
       // Check to see if any file changes were detected.
       if (Object.keys(metadataAction).length == 0) {
+        // Silently return without an error when forcePackageContinueSilent is true
+        if (opt.forcePackageContinueSilent) {
+          done();
+          return;
+        }
+
         var msg = 'No new or modified files detected.';
 
         // Throw a gulp error to note no file changes detected.
@@ -353,6 +386,7 @@ var force = {
       done();
     });
 
+    return module.exports;
   }
 
 };
@@ -378,6 +412,13 @@ function buildMetadataContent(name, options, ext, isText) {
     case '.cls':
       data = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<ApexClass xmlns=\"http:\/\/soap.sforce.com\/2006\/04\/metadata\">\r\n    <apiVersion>' + options.apiVersion + '.0<\/apiVersion>\r\n    <status>Active<\/status>\r\n<\/ApexClass>';
       break;
+    case '.app':
+    case '.cmp':
+    case '.evt':
+    case '.intf':
+    case '.tokens':
+      data = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<AuraDefinitionBundle xmlns=\"http:\/\/soap.sforce.com\/2006\/04\/metadata\">\r\n    <apiVersion>' + options.apiVersion + '.0<\/apiVersion>\r\n    <description>' + name + '<\/description>\r\n<\/AuraDefinitionBundle>';
+      break;
     case '.trigger':
       data = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<ApexTrigger xmlns=\"http:\/\/soap.sforce.com\/2006\/04\/metadata\">\r\n    <apiVersion>' + options.apiVersion + '.0<\/apiVersion>\r\n    <status>Active<\/status>\r\n<\/ApexTrigger>';
       break;
@@ -398,62 +439,83 @@ function buildMetadataContent(name, options, ext, isText) {
 
 }
 
-function getPackagePath(ext) {
+function getPackagePath(dir, ext, filePath) {
   switch (ext) {
+    // Lightning bundles first
+    case '.auradoc':
+    case '.css':
+    case '.design':
+    case '.js':
+    case '.svg':
+      return { folderName: 'aura/' + dir, isBundleItem: true, hasMetadata: false };
+    case '.cmp':
+    case '.evt':
+    case '.intf':
+    case '.tokens':
+      return { folderName: 'aura/' + dir, isBundleItem: true, hasMetadata: true };
+
+    // Distinguish between aura .app vs classic .app
     case '.app':
-      return { folderName: 'applications', hasMetadata: false };
+      var fileContents = fs.readFileSync(filePath, 'utf8');
+      // Lightning app
+      if (-1 !== fileContents.indexOf('<aura:application'))
+        return { folderName: 'aura/' + dir, isBundleItem: true, hasMetadata: true };
+      // Classic app
+      if (-1 !== fileContents.indexOf('<CustomApplication'))
+        return { folderName: 'applications', isBundleItem: false, hasMetadata: false };
+
     case '.approvalProcess':
-      return { folderName: 'approvalProcesses', hasMetadata: false };
+      return { folderName: 'approvalProcesses', isBundleItem: false, hasMetadata: false };
     case '.assignmentRules':
-      return { folderName: 'assignmentRules', hasMetadata: false };
+      return { folderName: 'assignmentRules', isBundleItem: false, hasMetadata: false };
     case '.authproviders':
-      return { folderName: 'authprovider', hasMetadata: false };
+      return { folderName: 'authprovider', isBundleItem: false, hasMetadata: false };
     case '.autoResponseRules':
-      return { folderName: 'autoResponseRules', hasMetadata: false };
+      return { folderName: 'autoResponseRules', isBundleItem: false, hasMetadata: false };
     case '.cls':
-      return { folderName: 'classes', hasMetadata: true };
+      return { folderName: 'classes', isBundleItem: false, hasMetadata: true };
     case '.community':
-      return { folderName: 'communities', hasMetadata: false };
+      return { folderName: 'communities', isBundleItem: false, hasMetadata: false };
     case '.component':
-      return { folderName: 'components', hasMetadata: true };
+      return { folderName: 'components', isBundleItem: false, hasMetadata: true };
     case '.group':
-      return { folderName: 'group', hasMetadata: false };
+      return { folderName: 'group', isBundleItem: false, hasMetadata: false };
     case '.homePageLayout':
-      return { folderName: 'homePageLayouts', hasMetadata: false };
+      return { folderName: 'homePageLayouts', isBundleItem: false, hasMetadata: false };
     case '.labels':
-      return { folderName: 'labels', hasMetadata: false };
+      return { folderName: 'labels', isBundleItem: false, hasMetadata: false };
     case '.layout':
-      return { folderName: 'layouts', hasMetadata: false };
+      return { folderName: 'layouts', isBundleItem: false, hasMetadata: false };
     case '.letter':
-      return { folderName: 'letterhead', hasMetadata: false };
+      return { folderName: 'letterhead', isBundleItem: false, hasMetadata: false };
     case '.object':
-      return { folderName: 'objects', hasMetadata: false };
+      return { folderName: 'objects', isBundleItem: false, hasMetadata: false };
     case '.objectTranslation':
-      return { folderName: 'objectTranslations', hasMetadata: false };
+      return { folderName: 'objectTranslations', isBundleItem: false, hasMetadata: false };
     case '.page':
-      return { folderName: 'pages', hasMetadata: true };
+      return { folderName: 'pages', isBundleItem: false, hasMetadata: true };
     case '.permissionset':
-      return { folderName: 'permissionsets', hasMetadata: false };
+      return { folderName: 'permissionsets', isBundleItem: false, hasMetadata: false };
     case '.profile':
-      return { folderName: 'profiles', hasMetadata: false };
+      return { folderName: 'profiles', isBundleItem: false, hasMetadata: false };
     case '.queue':
-      return { folderName: 'queues', hasMetadata: false };
+      return { folderName: 'queues', isBundleItem: false, hasMetadata: false };
     case '.quickAction':
-      return { folderName: 'quickActions', hasMetadata: false };
+      return { folderName: 'quickActions', isBundleItem: false, hasMetadata: false };
     case '.remoteSite':
-      return { folderName: 'remoteSiteSettings', hasMetadata: false };
+      return { folderName: 'remoteSiteSettings', isBundleItem: false, hasMetadata: false };
     case '.reportType':
-      return { folderName: 'reportTypes', hasMetadata: false };
+      return { folderName: 'reportTypes', isBundleItem: false, hasMetadata: false };
     case '.role':
-      return { folderName: 'role', hasMetadata: false };
+      return { folderName: 'role', isBundleItem: false, hasMetadata: false };
     case '.resource':
-      return { folderName: 'staticresources', hasMetadata: true };
+      return { folderName: 'staticresources', isBundleItem: false, hasMetadata: true };
     case '.tab':
-      return { folderName: 'tabs', hasMetadata: false };
+      return { folderName: 'tabs', isBundleItem: false, hasMetadata: false };
     case '.translation':
-      return { folderName: 'translations', hasMetadata: false };
+      return { folderName: 'translations', isBundleItem: false, hasMetadata: false };
     case '.trigger':
-      return { folderName: 'triggers', hasMetadata: true };
+      return { folderName: 'triggers', isBundleItem: false, hasMetadata: true };
   }
 }
 
